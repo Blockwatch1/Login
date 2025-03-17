@@ -1,54 +1,79 @@
-import { createRequire } from 'module';
+import { createRequire } from "module";
 const require = createRequire(import.meta.url);
-import express from 'express';
-import cors from 'cors';
-const {Client} = require('pg');
+import express from "express";
+import cors from "cors";
+const { Client } = require("pg");
 require("dotenv").config();
 var emailable = require("emailable")(process.env.VerifEmailKey);
+const PORT = process.env.PORT;
 const client = new Client({
-    user : "postgres",
-    password : "Sussy",
-    host: "localhost",
-    port: '5432',
-	database: 'Test-Login',
+  user: "postgres",
+  password: "Sussy",
+  host: "localhost",
+  port: "5432",
+  database: "Test-Login",
 });
-const app =express();
+const app = express();
+app.use(express.json()); 
 app.use(cors());
-async function verifyEmail(){
-    try{
-    const resu = await emailable.verify('sigmasigmaboy@gmail.com');
-    console.log(resu);
-     return resu; 
-}catch(e){
+async function verifyEmail(email) {
+  try {
+    const response = await emailable.verify(email);
+    console.log(response);
+    return response;
+  } catch (e) {
     console.log("Connection to emailable failed");
     return null;
+  }
 }
-}
-async function getUser(){
-    try{
-    let resu = await client.query('Select * from users');
-   return resu.rows;
-}catch(e){
-     return null;
-}
-
-}
-
-app.get("/getUser", async(req, res) => {
-    const rep = await getUser();
-    res.send(rep);
-});
 async function connect() {
-    try{
-        await client.connect();
-        console.log("connection to postgres Successful");
-    }catch(e){
-        console.log("connection to postgres failed");
-    }
+  try {
+    await client.connect();
+    console.log("connection to postgres Successful");
+  } catch (e) {
+    console.log("connection to postgres failed");
+  }
 }
-app.get("/verifyEmail", async(req, res) => {
-    const resu = await verifyEmail();
-    res.send(resu);
+app.post("/handleLogin",async(req,res)=>{
+ try{
+    const { email, password } = req.body;
+    const databaseResponse = await client.query(`Select * from users where username = '${email}' and password= '${password}'`);
+    if(databaseResponse.rows!=0){
+        res.send({status: "accepted",reason:""});
+    }else{
+        res.send({status: "rejected",reason:"User does not exist"});
+    }
+ }catch(e){
+        res.send({status: "rejected",reason:"Server error"});
+ }
+});
+app.post("/handleSignup", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const check = await verifyEmail(email);
+    if(check.score===undefined){
+        return;
+    }
+    if(check.score>80){
+        try{
+             const databaseResponse = await client.query(`insert into users values ('${email}','${password}')`);
+             if(databaseResponse.rowCount!=undefined&&databaseResponse.rowCount!=0){
+                res.send({status: "accepted",reason:""});
+             }else{
+                res.send({status: "rejected",reason:"Server error"});
+             }
+        }catch(e){
+            console.log(e);
+        }
+    }else{
+        res.send({status: "rejected",reason:"Email not real"});
+    }
+  } catch (e) {
+    res.send({status: "accepted",reason:"Server error"});
+    console.log(e);
+  }
 });
 connect();
-app.listen(3050,()=>{console.log('Server is listening on port 3050');});
+app.listen(PORT, () => {
+  console.log(`Server is listening on port ${PORT}`);
+});
