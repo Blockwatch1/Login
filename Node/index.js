@@ -7,11 +7,11 @@ require("dotenv").config();
 var emailable = require("emailable")(process.env.VerifEmailKey);
 const PORT = process.env.PORT;
 const client = new Client({
-  user: "postgres",
-  password: "Sussy",
-  host: "localhost",
-  port: "5432",
-  database: "Test-Login",
+  user: process.env.PGUSER,
+  password: process.env.PGPASSWORD,
+  host: process.env.PGHOST,
+  port: process.env.PGPORT,
+  database: process.env.PGDATABASE,
 });
 const app = express();
 app.use(express.json()); 
