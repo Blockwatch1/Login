@@ -75,6 +75,32 @@ app.post("/handleSignup", async (req, res) => {
   }
 });
 connect();
+async function checkTableExists() {
+ 
+  try {
+    const result = await client.query("SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'users')");
+    if (result.rows[0].exists) {
+      console.log("Table 'users' exists.");
+    } else {
+      console.log("Table 'users' does not exist.");
+    }
+    return result.rows[0].exists;
+  } catch (error) {
+    console.error("Error checking table existence:", error);
+    return false;
+  }
+}
+async function createUsers() {
+  const exists=  await checkTableExists();
+  if(!exists){
+    try{
+      client.query("create table users (username varchar(55) not null primary key,password varchar(55) not null)");
+    }catch(e){
+      console.log("failed to create table users");
+    }
+  }
+}
+
 app.listen(PORT, () => {
   console.log(`Server is listening on port ${PORT}`);
 });
