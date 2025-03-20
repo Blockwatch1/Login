@@ -31,10 +31,11 @@ async function connect() {
     await client.connect();
     console.log("connection to postgres Successful");
   } catch (e) {
-    console.log("connection to postgres failed");
+    console.log("connection to postgres failed. Specific Error: ", e);
   }
 }
 app.post("/handleLogin",async(req,res)=>{
+  
  try{
     const { email, password } = req.body;
     const databaseResponse = await client.query(`Select * from users where username = '${email}' and password= '${password}'`);

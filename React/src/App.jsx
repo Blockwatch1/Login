@@ -37,7 +37,7 @@ function Form(props) {
     setLogin(!login);
   }
   async function handleSubmitLogin() {
-    const emailRegex = /^[a-zA-Z0-9_.]+@[a-zA-Z]+\.com$/;
+    const emailRegex = /^[a-z0-9_.]+@[a-zA-Z]+\.com$/;
     const passwordRegex = /(?=.*[A-Z])(?=.*[a-z])(?=.*\d)/g;
     const emailTest = emailRegex.test(emailSignRef.current.value);
     const passwordTest = passwordRegex.test(passwordSignRef.current.value);
@@ -80,7 +80,7 @@ function Form(props) {
     
   }
   async function handleSubmitSignUp() {
-    const emailRegex = /^[a-zA-Z0-9_.]+@[a-zA-Z]+\.com$/;
+    const emailRegex = /^[a-z0-9_.]+@[a-zA-Z]+\.com$/;
     const passwordRegex = /(?=.*[A-Z])(?=.*[a-z])(?=.*\d)/g;
     const emailTest = emailRegex.test(emailSignRef.current.value);
     const passwordTest = passwordRegex.test(passwordSignRef.current.value);
